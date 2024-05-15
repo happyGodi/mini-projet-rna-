@@ -53,7 +53,7 @@
 
 <template>
     <div class="trace">
-        <h1>Tracée de Yn en fonction de Xn</h1>
+        <h1>Tracé de Yn en fonction de Xn</h1>
         <h3>Zoomez si les valeurs sont trop petites</h3>
         <LineChart class="chart" :chart-data="testChart" :options="options"/>
     </div>
