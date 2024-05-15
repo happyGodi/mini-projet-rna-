@@ -19,13 +19,13 @@
         <div class="first_value">
         <span></span>
             <div class="xnvalue">
-                <h4 class="serie_title">500 premiers valeurs de Xn</h4>
+                <h4 class="serie_title">50 premiers valeurs de Xn</h4>
                 <ul class="value_list">
                     <li v-for="x in xn" :key="x"  class="value_item">{{x}}&nbsp;</li>
                 </ul>
             </div>
             <div class="xnvalue">
-                <h4 class="serie_title">500 premiers valeurs de Yn</h4>
+                <h4 class="serie_title">50 premiers valeurs de Yn</h4>
                 <ul class="value_list">
                     <li v-for="y in yn" :key="y"  class="value_item">{{y}}&nbsp;</li>
                 </ul>
