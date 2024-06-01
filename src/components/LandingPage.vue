@@ -1,11 +1,11 @@
 <script setup lang="ts">
     import { computed, onMounted } from 'vue';
     import { useHeronStore } from '@/stores/heron';
+    import TraceXY from './TraceXY.vue';
 
     const heron = useHeronStore()
     const heronObject = computed(() =>  heron.heron() )  
-    const xn = heronObject.value.xn.value
-    const yn = heronObject.value.yn.value
+    const arr = heronObject.value.arr.value
 
     onMounted(() => {
 
@@ -19,20 +19,22 @@
         <div class="first_value">
         <span></span>
             <div class="xnvalue">
-                <h4 class="serie_title">50 premiers valeurs de Xn</h4>
+                <h4 class="serie_title">500 premiers valeurs de Xn</h4>
                 <ul class="value_list">
-                    <li v-for="x in xn" :key="x"  class="value_item">{{x}}&nbsp;</li>
+                    <li v-for="x in arr" :key="x.x"  class="value_item">{{x.x}}&nbsp;</li>
                 </ul>
             </div>
             <div class="xnvalue">
-                <h4 class="serie_title">50 premiers valeurs de Yn</h4>
+                <h4 class="serie_title">500 premiers valeurs de Yn</h4>
                 <ul class="value_list">
-                    <li v-for="y in yn" :key="y"  class="value_item">{{y}}&nbsp;</li>
+                    <li v-for="y in arr" :key="y.y"  class="value_item">{{y.y}}&nbsp;</li>
                 </ul>
             </div>
-           
         </div>
-       
+        <div class="trace">
+            <TraceXY
+/>
+        </div>
     </div>
 </template>
 
@@ -89,6 +91,10 @@
                     }
                 }
             }
+        }
+        .trace {
+            width: 100%;
+            height: 100vh;
         }
     }
 

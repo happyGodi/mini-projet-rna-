@@ -1,61 +1,69 @@
 <script setup lang="ts">
     import { computed, onMounted, ref } from 'vue';
     import { useHeronStore } from '@/stores/heron';
-    import { DoughnutChart, LineChart, BarChart, BubbleChart } from 'vue-chart-3'
-    import { Chart, registerables } from 'chart.js'
+    import { Chart, Legend, registerables, ScatterController, PointElement, LinearScale, Title, Tooltip } from 'chart.js'
 
-    Chart.register(...registerables)
+    Chart.register(ScatterController, PointElement, LinearScale, Title, Tooltip)
 
     const heron = useHeronStore()
-    const heronObject = computed(() =>  heron.heron() )  
-    const xn = ref(heronObject.value.xn.value) 
-    const yn = ref(heronObject.value.yn.value)
+    const arr = computed(() => heron.getArrValues)
+    const scatterChart = ref<HTMLCanvasElement | null>(null)
     
+
     onMounted(() => {
-        console.log()
+        console.log(arr.value)
+
+        new Chart(scatterChart.value?.getContext('2d') as CanvasRenderingContext2D, {
+            type: 'scatter',
+            data:  {
+                datasets: [
+                    {
+                        label: 'Scatter datasets',
+                        data: arr.value,
+                        backgroundColor: 'rgba(75, 192, 192, 1)',
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        min: -1.5,
+                        max: 1.5,
+                        title: {
+                            display: true,
+                            text: 'Axes des x'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        min: -0.4,
+                        max: 0.4,
+                        title: {
+                            display: true,
+                            text: 'Axes des y'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                        labels: {
+                            color: '#f8f8f8'
+                        }
+                    },
+                }
+            }
+        })
     })
-    const testChart = {
-        labels: xn.value, //x axis
-        datasets: [
-            {
-                label: 'Tracé de Yn en fonction de Xn',
-                data: yn.value,
-                backgroundColor: '#77ceff',
-                borderColor: '#77ceff',
-                borderWidth: 1,
-                tension: 0.5,
-                pointRadius: 0,
-            }
-        ]
-    }
-    const options = ref({
-        scales: {
-           x: {
-            title: {
-                display: true,
-                text: 'Axes des x'
-            }
-           },
-           y: {
-            title: {
-                display: true,
-                text: 'Axes des y'
-            }
-           }
-        },
-        responsive: true,
-        title: {
-            display: true,
-            text: 'Tracée de Yn en fonction de Xn',
-        }
-    })
+
 </script>
 
 <template>
     <div class="trace">
         <h1>Tracé de Yn en fonction de Xn</h1>
         <h3>Zoomez si les valeurs sont trop petites</h3>
-        <LineChart class="chart" :chart-data="testChart" :options="options"/>
+        <canvas ref="scatterChart"></canvas>
     </div>
 </template>
 
@@ -65,7 +73,7 @@
         @include setFlex(center, center, column);
         width: 100%;
         height: 100%;
-        padding: 0 2rem;
+        padding: 1rem 2rem;
         overflow: hidden;
         h1 {
             padding: 0.25rem 2rem;
@@ -80,6 +88,11 @@
         .chart {
             width: 100%;
             height: 70%;
+        }
+
+        canvas {
+            max-width: 90%;
+            max-height: 70%;
         }
     }
 </style>
