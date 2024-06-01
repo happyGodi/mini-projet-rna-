@@ -2,6 +2,7 @@
     import { computed, onMounted } from 'vue';
     import { useHeronStore } from '@/stores/heron';
     import TraceXY from './TraceXY.vue';
+    import Architecture from './Architecture.vue';
 
     const heron = useHeronStore()
     const heronObject = computed(() =>  heron.heron() )  
@@ -32,8 +33,10 @@
             </div>
         </div>
         <div class="trace">
-            <TraceXY
-/>
+            <TraceXY/>
+        </div>
+        <div class="arch">
+            <Architecture/>
         </div>
     </div>
 </template>
@@ -93,6 +96,10 @@
             }
         }
         .trace {
+            width: 100%;
+            height: 100vh;
+        }
+        .arch {
             width: 100%;
             height: 100vh;
         }

@@ -12,7 +12,7 @@ export const useHeronStore = defineStore('heron', () => {
         y: 0.0
     }])
     function heron() {
-        for(let i = 0; i < n.value; i++){
+        for(let i = 0; i <= n.value; i++){
             arr.value.push({
                 x: parseFloat((arr.value[i].y + 1 - a.value*(arr.value[i].x*arr.value[i].x)).toPrecision(8)),
                 y: parseFloat((b.value*arr.value[i].x).toPrecision(8))
