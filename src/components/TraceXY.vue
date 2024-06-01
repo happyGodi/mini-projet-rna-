@@ -11,7 +11,6 @@
     
 
     onMounted(() => {
-        console.log(arr.value)
 
         new Chart(scatterChart.value?.getContext('2d') as CanvasRenderingContext2D, {
             type: 'scatter',
@@ -62,7 +61,7 @@
 <template>
     <div class="trace">
         <h1>Tracé de Yn en fonction de Xn</h1>
-        <h3>Zoomez si les valeurs sont trop petites</h3>
+        <h3>Zoomez si les valeurs sont trop dificilles à lire</h3>
         <canvas ref="scatterChart"></canvas>
     </div>
 </template>
