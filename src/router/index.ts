@@ -9,12 +9,12 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView
-    },
+    }/* ,
     {
       path: '/traceXY',
       name: 'Tracée de Yn en fonction de Xn',
       component: () => import("../components/TraceXY.vue")
-    }
+    } */
   ]
 })
 
