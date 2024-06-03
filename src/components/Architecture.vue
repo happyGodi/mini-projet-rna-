@@ -24,7 +24,6 @@
     const valeurPropres = ref(sortArr(matrixValeurPropre(covMatrix.value)))
     //step 5: Calcul des errurs d'approximation
     const aproximateErrors = ref(approximateError(valeurPropres.value))
-    console.log(aproximateErrors.value)
 
     //fonction de calcul de l'erreur d'approximation
     function approximateError(valeurPropre: number[]): Trace[] {
@@ -207,7 +206,7 @@
                 <p>d'après le tracé de El en fonction de l ci-contre, le premier plateau est rencontré aux coordonnée <br> <span>El: 2.5988324, l: 9</span></p>
                 <ul>
                     <li>Nombre d'unité d'entrée: 9</li>
-                    <li>Nombre d'unité cachée: 3</li>
+                    <li>Nombre d'unité cachée: 9</li>
                     <li>Nombre d'unité de sortie: 1</li>
                 </ul>
             </div>
@@ -242,7 +241,6 @@
         width: 100%;
         height: auto;
         padding: 1rem 0.25;
-        overflow: hidden;
         h1 {
             padding: 0.25rem 2rem;
             margin-top: 0.5rem;
