@@ -3,6 +3,7 @@
     import { useHeronStore } from '@/stores/heron';
     import TraceXY from './TraceXY.vue';
     import Architecture from './Architecture.vue';
+    import Apprentissage from './Apprentissage.vue';
 
     const heron = useHeronStore()
     const heronObject = computed(() =>  heron.heron() )  
@@ -37,6 +38,9 @@
         </div>
         <div class="arch">
             <Architecture/>
+        </div>
+        <div class="arch">
+            <Apprentissage/>
         </div>
     </div>
 </template>
