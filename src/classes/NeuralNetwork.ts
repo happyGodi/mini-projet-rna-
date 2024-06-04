@@ -19,11 +19,11 @@ export class NeuralNetwork {
         this.learningRate = learningRate
         this.timeSerie = timeSerie
 
-        //initialisation des poids avec de petites valeurs aléatoire (min: 0.1, max: 0.5)
+        //step1: initialisation des poids avec de petites valeurs aléatoire (min: 0.1, max: 0.5)
         this.weightsInputHidden = Array.from({length: hiddenUnitNumber}, () => Array.from({length: inputUnitNumber}, () => Math.random() * (0.5 - 0.1) + 0.1))
         this.weightsOutputHidden = Array.from({length: outputUnitNumber}, () => Array.from({length: hiddenUnitNumber}, () => Math.random() * (0.5 - 0.1) + 0.1))
 
-        //initialisation du premier prototype
+        //step2: initialisation du premier prototype
         this.prototype = this.generatePrototype(timeSerie.slice(0, 300), 6)
     }
     //géneration des prototypes
@@ -56,21 +56,40 @@ export class NeuralNetwork {
         return parseFloat((x * (1 - x)).toPrecision(8))
     }
 
-    //propagation du signal vers l'avant
+    //step 3: propagation du signal vers l'avant
     private forwardPropagation(inputs: number[]): { hidden: number[], output: number[] } {
-        const hidden = this.weightsInputHidden.map(hiddenWeights => this.sigmoid(hiddenWeights.reduce((sum, weight, i) => sum + weight * inputs[i], 0)))
+        const hidden = this.weightsInputHidden.map(hiddenWeights => this.sigmoid(hiddenWeights.reduce((sum, weight, i) => parseFloat((sum + weight * inputs[i]).toPrecision(8)), 0)))
         /**
          parcours de l'ensemble de poids entre la couche d'entréé et celle caché
          hiddenWeights.reduce calcul la valeur du paramètre de la fonction sigmoid
          la valeur finale est celle retourné par cette fonction
-         l'étape 3 dans l'algorithme
          le processus est le même pour l'instruction suivante mais utilisant la couche caché et celle de sortie
          */
-        const output = this.weightsOutputHidden.map(outputWeights => this.sigmoid(outputWeights.reduce((sum, weight, i) => sum + weight * hidden[i], 0)))
+        const output = this.weightsOutputHidden.map(outputWeights => this.sigmoid(outputWeights.reduce((sum, weight, i) => parseFloat((sum + weight * hidden[i]).toPrecision(8)), 0)))
+        //calcul de toutes les sortie
         return {hidden, output}
     }
 
-    //
+    //propagation vers l'arrière
+    private backwardPropagation(inputs: number[], hiddens: number[], output: number, target: number): void {
+        //calcule de l'erreur de sortie
+        const outputError = target - output
+        //step 4: calcul des deltas pour la couche de sortie
+        const outputDelta = outputError * this.sigmoidDerivated(output)
+        //step 5: propagation des erreurs vers l'arrière et calcul des deltas pour les couches précedentes
+        const hiddenErrors = this.weightsOutputHidden[0].map((weight) => parseFloat((weight * outputDelta).toPrecision(8)))
+        const hiddenDeltas = hiddenErrors.map((error, i) => parseFloat((error * this.sigmoidDerivated(hiddens[i])).toPrecision(8)))
+
+        //step 6: mise à jour de toutes les connexions
+        for (let i = 0; i < this.hiddenUnitNumber; i++) {
+            this.weightsOutputHidden[0][i] += this.learningRate * outputDelta * hiddens[i]
+        }
+        for (let i = 0; i < this.hiddenUnitNumber; i++) {
+            for (let j = 0; j < this.inputUnitNumber; j++) {
+                this.weightsInputHidden[i][j] += this.learningRate * hiddenDeltas[i] * inputs[j]
+            }
+        }
+    }
 
     //fonction test prototype
     getPrototype() {
