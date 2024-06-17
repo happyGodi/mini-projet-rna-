@@ -9,11 +9,12 @@
     const learningRate = ref(0.1); //taux d'apprentissage
     const neural = ref(new NeuralNetwork(9, 9, 1, learningRate.value, arr.value.map((item) => item.x)))
     const prototypes = ref(neural.value.getPrototype())
-    const errorPoints = ref<ErrorPoint[]>(neural.value.train())
+    const error = ref(neural.value.train())
+    const targets = ref(neural.value.getTarget())
 
     onMounted(() => {
-        console.log(errorPoints.value) 
-        
+        console.log(error.value) 
+        console.log(prototypes.value)
     })
     
 
