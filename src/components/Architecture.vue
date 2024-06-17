@@ -58,14 +58,6 @@
         return [lambda1, lambda2]
     }
 
-    //fonction de triage
-    function sorting(arr: number[][][]): number[][][] {
-        return arr.sort((a, b) => {
-            const valuerPropreA = a[0][0]
-            const valeurPropreB = b[0][0]
-            return valuerPropreA - valeurPropreB
-        })
-    }
     //fonction de calcul et stockage de tous les valeurs propres
     function matrixValeurPropre(matrices: number[][][]): number[] {
         //prendre uniquement les valeurs propres positives
@@ -109,7 +101,7 @@
         return groupedData
     }
 
-    //fonction de calcul de covariance entre deux tableau de bnombre avec la formule de covariance
+    //fonction de calcul de covariance entre deux tableau de nombre avec la formule de covariance
     function covariance(x: number[], y: number[]): number {
         const xMean = mean(x)
         const yMean = mean(y)
