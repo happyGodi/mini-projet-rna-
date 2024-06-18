@@ -3,18 +3,74 @@
     import { useHeronStore } from '@/stores/heron';
     import {NeuralNetwork} from '../classes/NeuralNetwork'
     import type { ErrorPoint } from '@/utils/interfaces';
+    import { Chart, Legend, registerables, ScatterController, PointElement, LinearScale, Title, Tooltip } from 'chart.js'
 
+    Chart.register(ScatterController, PointElement, LinearScale, Title, Tooltip)
+
+    const scatterChart = ref<HTMLCanvasElement | null>(null)
     const heron = useHeronStore()
+    const epoch = ref(500)
     const arr = computed(() => heron.getArrValues)
     const learningRate = ref(0.1); //taux d'apprentissage
     const neural = ref(new NeuralNetwork(9, 9, 1, learningRate.value, arr.value.map((item) => item.x)))
-    const prototypes = ref(neural.value.getPrototype())
-    const error = ref(neural.value.train())
-    const targets = ref(neural.value.getTarget())
+    const error = ref()
+    const errorList = ref<ErrorPoint[]>([])
 
     onMounted(() => {
-        console.log(error.value) 
-        console.log(prototypes.value)
+        neural.value.train(epoch.value)
+        error.value = neural.value.getLearningErrors()
+        for (let i = 0; i < error.value.length; i++) {   
+            errorList.value.push({
+                x: i,
+                y: error.value[i]
+            })
+        }
+        console.log(errorList.value)
+
+        //traçcage de l'erreur
+        new Chart(scatterChart.value?.getContext('2d') as CanvasRenderingContext2D, {
+            type: 'scatter',
+            data:  {
+                datasets: [
+                    {
+                        label: 'Scatter datasets',
+                        data: errorList.value,
+                        backgroundColor: 'rgb(63, 255, 127)',
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        type: 'linear',
+                        min: -0.65,
+                        max: 0.2,
+                        title: {
+                            display: true,
+                            text: 'Axes des y'
+                        }
+                    },
+                    x: {
+                        type: 'linear',
+                        min: 0,
+                        max: 500,
+                        title: {
+                            display: true,
+                            text: 'Axes des x'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                        labels: {
+                            color: '#f8f8f8'
+                        }
+                    },
+                }
+            }
+        })
+        
     })
     
 
@@ -23,6 +79,8 @@
 <template>
     <div class="apprentissage">
         <h1>Apprentissage du réseau</h1>
+        <h2>Courbe des erreurs</h2>
+        <canvas ref="scatterChart"></canvas>
     </div>
 </template>
 
@@ -38,6 +96,11 @@
             padding: 0.25rem 2rem;
             margin-top: 0.5rem;
             font-size: 36px;
+        }
+        canvas {
+            max-width: 60%;
+            height: 30%;
+            padding: 0.5rem;
         }
     }
 </style>../classes/NeuralNetwork
