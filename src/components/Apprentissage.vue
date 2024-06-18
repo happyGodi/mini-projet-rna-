@@ -9,7 +9,7 @@
 
     const scatterChart = ref<HTMLCanvasElement | null>(null)
     const heron = useHeronStore()
-    const epoch = ref(500)
+    const epoch = ref(300)
     const arr = computed(() => heron.getArrValues)
     const learningRate = ref(0.1); //taux d'apprentissage
     const neural = ref(new NeuralNetwork(9, 9, 1, learningRate.value, arr.value.map((item) => item.x)))
@@ -53,7 +53,7 @@
                     x: {
                         type: 'linear',
                         min: 0,
-                        max: 500,
+                        max: 300,
                         title: {
                             display: true,
                             text: 'Axes des x'
