@@ -13,20 +13,21 @@ export class NeuralNetwork {
     private prototype: Prototype[] //les prototypes
     private targets: number[] = []
     private timeSerie: number[]
+    private learningErrors: number[] = [];
 
     constructor(inputUnitNumber: number, hiddenUnitNumber: number, outputUnitNumber: number, learningRate: number, timeSerie: number[]) {
         this.inputUnitNumber = inputUnitNumber
         this.hiddenUnitNumber = hiddenUnitNumber
         this.outputUnitNumber = outputUnitNumber
         this.learningRate = learningRate
-        this.timeSerie = timeSerie.slice(0, 250)
+        this.timeSerie = timeSerie.slice(0, 300)
 
         //step1: initialisation des poids avec de petites valeurs aléatoire (min: 0.1, max: 0.5)
         this.weightsInputHidden = Array.from({length: hiddenUnitNumber}, () => Array.from({length: inputUnitNumber}, () => parseFloat((Math.random() * (0.5 - 0.1) + 0.1).toPrecision(8))))
         this.weightsOutputHidden = Array.from({length: outputUnitNumber}, () => Array.from({length: hiddenUnitNumber}, () => parseFloat((Math.random() * (0.5 - 0.1) + 0.1).toPrecision(8))))
 
         //step2: initialisation du premier prototype
-        this.prototype = this.generatePrototype(timeSerie.slice(0, 250))
+        this.prototype = this.generatePrototype(timeSerie.slice(0, 300))
     }
     //géneration des prototypes
     private generatePrototype(arr: number[]): Prototype[] {
@@ -100,24 +101,40 @@ export class NeuralNetwork {
     }
 
     //fonction d'apprentissage
-    public train(): number {
-        let nmse: number = 0
-        for (const { inputs, target } of this.prototype) {
-            const { hidden, output } = this.forwardPropagation(inputs)
-            this.backwardPropagation(inputs, hidden, output, target)
-            this.outputs.push(output)
+    public train(epochs: number): void {
+        this.learningErrors = [];
+
+        for (let epoch = 0; epoch < epochs; epoch++) {
+            this.outputs = [];
+            for (const { inputs, target } of this.prototype) {
+                const { hidden, output } = this.forwardPropagation(inputs);
+                this.backwardPropagation(inputs, hidden, output, target);
+                this.outputs.push(output);
+            }
+            const nmse = this.calculNMSE(this.outputs, this.targets);
+            this.learningErrors.push(nmse);
+
+            //if (epoch > 0 && this.learningErrors[epoch] > this.learningErrors[epoch - 1]) break;
         }
- 
-        return this.calculNMSE(this.targets, this.outputs)
+    }
+
+    public updatePrototype(arr: number[]): any {
+        for (let i = 0; i < this.prototype.length; i++) {
+            this.prototype[i].target = arr[i];    
+        }
     }
 
     //fonction de calcul de l'erreur NMSE
     private calculNMSE(predictions: number[], targets: number[]): number {
         let sum: number = 0
-        for (let i = 0; i < predictions.length; i++) {
-            sum += targets[i] - predictions[i]
+        if (predictions.length != 0) {
+            for (let i = 0; i < predictions.length; i++) {
+                sum += targets[i] - predictions[i]
+            }
+            return parseFloat((sum / (predictions.length * this.calculateVariance(this.timeSerie))).toPrecision(8))
         }
-        return parseFloat((sum / (predictions.length * this.calculateVariance(this.timeSerie))).toPrecision(8))
+        else return 0
+       
     }
 
     //fonction test prototype
@@ -129,7 +146,15 @@ export class NeuralNetwork {
         return this.weightsInputHidden
     }
 
+    getOutput(): number[] {
+        return this.outputs
+    }
+
     getTarget(): number[] {
         return this.targets
+    }
+
+    getLearningErrors(): number[] {
+        return this.learningErrors;
     }
 }

@@ -31,7 +31,7 @@
         for( let i = 0; i < valeurPropre.length; i++) {
             err.push({
                 x: i,
-                y: parseFloat((valeurPropre[i] + 1).toPrecision(8))
+                y: parseFloat((Math.abs(valeurPropre[i] + 1)).toPrecision(8))
             })
         }
 
