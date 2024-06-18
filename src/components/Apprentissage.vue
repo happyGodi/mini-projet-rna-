@@ -9,23 +9,48 @@
 
     const scatterChart = ref<HTMLCanvasElement | null>(null)
     const heron = useHeronStore()
-    const epoch = ref(300)
+    const epoch = ref(500)
     const arr = computed(() => heron.getArrValues)
     const learningRate = ref(0.1); //taux d'apprentissage
-    const neural = ref(new NeuralNetwork(9, 9, 1, learningRate.value, arr.value.map((item) => item.x)))
+    const neural = ref(new NeuralNetwork(10, 9, 1, learningRate.value, arr.value.map((item) => item.x)))
+    const timeSerie = ref(neural.value.getTimeSerie())
     const error = ref()
     const errorList = ref<ErrorPoint[]>([])
+    const predictions = ref<number[]>(timeSerie.value.slice(0, 300))
+    const predList = ref<ErrorPoint[]>([])
+    const steps = ref(1)
 
     onMounted(() => {
         neural.value.train(epoch.value)
         error.value = neural.value.getLearningErrors()
+        //mapping des valeurs de la liste d'erreur  pour le traçcage
         for (let i = 0; i < error.value.length; i++) {   
             errorList.value.push({
                 x: i,
                 y: error.value[i]
             })
         }
-        console.log(errorList.value)
+        //première prédiction à 1 pas
+        predictions.value.push(neural.value.predict(timeSerie.value.slice(300, 500), steps.value)[0])
+        
+       for (let i = 0; i < 199; i++) {
+            //utilise la dernière valeure prédite
+            const newInput = predictions.value
+            //console.log({p: predictions.value[predictions.value.length - 1], i: predictions.value.length - 1})
+            const nextPrediction = neural.value.predict(newInput, steps.value)[0]
+            //console.log(nextPrediction)
+            predictions.value.push(nextPrediction)
+        } 
+
+
+        for (let i = 0; i < predictions.value.length; i++) {   
+            predList.value.push({
+                x: predictions.value[i],
+                y: i
+            })
+        }
+
+        console.log(predList.value)
 
         //traçcage de l'erreur
         new Chart(scatterChart.value?.getContext('2d') as CanvasRenderingContext2D, {
@@ -53,7 +78,7 @@
                     x: {
                         type: 'linear',
                         min: 0,
-                        max: 300,
+                        max: 500,
                         title: {
                             display: true,
                             text: 'Axes des x'
@@ -70,6 +95,7 @@
                 }
             }
         })
+
         
     })
     
@@ -80,7 +106,9 @@
     <div class="apprentissage">
         <h1>Apprentissage du réseau</h1>
         <h2>Courbe des erreurs</h2>
-        <canvas ref="scatterChart"></canvas>
+        <div class="trace">
+            <canvas ref="scatterChart"></canvas>
+        </div>
     </div>
 </template>
 
@@ -96,11 +124,17 @@
             padding: 0.25rem 2rem;
             margin-top: 0.5rem;
             font-size: 36px;
+          /*   background-color: rgb(8, 119, 216); */
         }
-        canvas {
-            max-width: 60%;
-            height: 30%;
-            padding: 0.5rem;
+        .trace {
+            @include setFlex(flex-start, center, row);
+            width: 100%;
+            height: auto;
+            canvas {
+                max-width: 50%;
+                height: 30%;
+                padding: 0.5rem;
+            }
         }
     }
 </style>../classes/NeuralNetwork

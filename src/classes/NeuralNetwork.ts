@@ -20,7 +20,7 @@ export class NeuralNetwork {
         this.hiddenUnitNumber = hiddenUnitNumber
         this.outputUnitNumber = outputUnitNumber
         this.learningRate = learningRate
-        this.timeSerie = timeSerie.slice(0, 300)
+        this.timeSerie = timeSerie
 
         //step1: initialisation des poids avec de petites valeurs aléatoire (min: 0.1, max: 0.5)
         this.weightsInputHidden = Array.from({length: hiddenUnitNumber}, () => Array.from({length: inputUnitNumber}, () => parseFloat((Math.random() * (0.5 - 0.1) + 0.1).toPrecision(8))))
@@ -114,14 +114,26 @@ export class NeuralNetwork {
             const nmse = this.calculNMSE(this.outputs, this.targets);
             this.learningErrors.push(nmse);
 
-            //if (epoch > 0 && this.learningErrors[epoch] > this.learningErrors[epoch - 1]) break;
+           // if (epoch > 0 && this.learningErrors[epoch] > this.learningErrors[epoch - 1]) break;
         }
     }
 
-    public updatePrototype(arr: number[]): any {
-        for (let i = 0; i < this.prototype.length; i++) {
-            this.prototype[i].target = arr[i];    
-        }
+    //fonction de prédiction
+    public predict(inputSerie: number[], steps: number): number[] {
+        const predictions: number[] = [];
+
+        let currentInputSerie = inputSerie.slice(0, 300)
+        
+        for (let step = 0; step < steps; step++) {
+            const currentInput = currentInputSerie.slice(-this.inputUnitNumber)
+            const { output } = this.forwardPropagation(currentInput);
+            
+            predictions.push(output);
+            currentInputSerie.push(output)
+    
+        } 
+
+        return predictions;
     }
 
     //fonction de calcul de l'erreur NMSE
@@ -156,5 +168,9 @@ export class NeuralNetwork {
 
     getLearningErrors(): number[] {
         return this.learningErrors;
+    }
+
+    getTimeSerie(): number[] {
+        return this.timeSerie
     }
 }
