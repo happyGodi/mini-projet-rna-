@@ -8,21 +8,23 @@
     Chart.register(ScatterController, PointElement, LinearScale, Title, Tooltip)
 
     const scatterChart = ref<HTMLCanvasElement | null>(null)
+    const scatter = ref<HTMLCanvasElement | null>(null)
     const heron = useHeronStore()
-    const epoch = ref(500)
+    const epoch = ref(100) //100 époque
     const arr = computed(() => heron.getArrValues)
     const learningRate = ref(0.1); //taux d'apprentissage
     const neural = ref(new NeuralNetwork(10, 9, 1, learningRate.value, arr.value.map((item) => item.x)))
     const timeSerie = ref(neural.value.getTimeSerie())
     const error = ref()
     const errorList = ref<ErrorPoint[]>([])
-    const predictions = ref<number[]>(timeSerie.value.slice(0, 300))
+    const predictions = ref<number[]>([])
     const predList = ref<ErrorPoint[]>([])
-    const steps = ref(1)
+    const steps = ref(200)
 
     onMounted(() => {
         neural.value.train(epoch.value)
         error.value = neural.value.getLearningErrors()
+        //console.log(error.value)
         //mapping des valeurs de la liste d'erreur  pour le traçcage
         for (let i = 0; i < error.value.length; i++) {   
             errorList.value.push({
@@ -30,27 +32,62 @@
                 y: error.value[i]
             })
         }
-        //première prédiction à 1 pas
-        predictions.value.push(neural.value.predict(timeSerie.value.slice(300, 500), steps.value)[0])
-        
-       for (let i = 0; i < 199; i++) {
-            //utilise la dernière valeure prédite
-            const newInput = predictions.value
-            //console.log({p: predictions.value[predictions.value.length - 1], i: predictions.value.length - 1})
-            const nextPrediction = neural.value.predict(newInput, steps.value)[0]
-            //console.log(nextPrediction)
+        // prédiction
+        for (let i = 0; i < 200; i++) {
+            const nextPrediction = neural.value.predict(timeSerie.value.slice(300 + i, 500), steps.value)[i]
             predictions.value.push(nextPrediction)
         } 
-
 
         for (let i = 0; i < predictions.value.length; i++) {   
             predList.value.push({
                 x: predictions.value[i],
-                y: i
+                y: arr.value.slice(300, 500)[i].y
             })
-        }
+        }  
 
+        predList.value = arr.value.slice(0, 300).concat(predList.value)
         console.log(predList.value)
+
+        new Chart(scatter.value?.getContext('2d') as CanvasRenderingContext2D, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Scatter datasets',
+                        data: arr.value,
+                        backgroundColor: 'rgb(255, 99, 132)'
+                    },
+                    {
+                        label: 'Scatter data',
+                        data: predList.value,
+                        backgroundColor: 'rgb(54, 162, 235)'
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        min: -1.5,
+                        max: 1.5,
+                        title: {
+                            display: true,
+                            text: 'Axes des X'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        min: -0.4,
+                        max: 0.4,
+                        title: {
+                            display: true,
+                            text: 'Axes des y'
+                        }
+                    }
+                }
+            }
+        })
 
         //traçcage de l'erreur
         new Chart(scatterChart.value?.getContext('2d') as CanvasRenderingContext2D, {
@@ -68,8 +105,8 @@
                 scales: {
                     y: {
                         type: 'linear',
-                        min: -0.65,
-                        max: 0.2,
+                        min: 0,
+                        max: 1,
                         title: {
                             display: true,
                             text: 'Axes des y'
@@ -78,7 +115,7 @@
                     x: {
                         type: 'linear',
                         min: 0,
-                        max: 500,
+                        max: 100,
                         title: {
                             display: true,
                             text: 'Axes des x'
@@ -94,9 +131,7 @@
                     },
                 }
             }
-        })
-
-        
+        })    
     })
     
 
@@ -104,10 +139,11 @@
 
 <template>
     <div class="apprentissage">
-        <h1>Apprentissage du réseau</h1>
-        <h2>Courbe des erreurs</h2>
+        <h1>Apprentissage et prédiction</h1>
+        <h4>Courbe des erreurs à gauche, prédictions à droite en bleu</h4>
         <div class="trace">
             <canvas ref="scatterChart"></canvas>
+            <canvas ref="scatter"></canvas>
         </div>
     </div>
 </template>
@@ -118,7 +154,7 @@
     .apprentissage {
         @include setFlex(flex-start, center, column);
         width: 100%;
-        height: 100vh;
+        height: 200vh;
         padding: 0.5rem;
         h1 {
             padding: 0.25rem 2rem;
@@ -127,12 +163,12 @@
           /*   background-color: rgb(8, 119, 216); */
         }
         .trace {
-            @include setFlex(flex-start, center, row);
+            @include setFlex(center, space-evenly, row);
             width: 100%;
-            height: auto;
+            height: 100%;
             canvas {
                 max-width: 50%;
-                height: 30%;
+                max-height: 600px;
                 padding: 0.5rem;
             }
         }

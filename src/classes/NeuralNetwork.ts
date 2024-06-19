@@ -114,7 +114,7 @@ export class NeuralNetwork {
             const nmse = this.calculNMSE(this.outputs, this.targets);
             this.learningErrors.push(nmse);
 
-           // if (epoch > 0 && this.learningErrors[epoch] > this.learningErrors[epoch - 1]) break;
+            if (epoch > 0 && this.learningErrors[epoch] > this.learningErrors[epoch - 1]) break;
         }
     }
 
@@ -122,13 +122,13 @@ export class NeuralNetwork {
     public predict(inputSerie: number[], steps: number): number[] {
         const predictions: number[] = [];
 
-        let currentInputSerie = inputSerie.slice(0, 300)
+        let currentInputSerie = inputSerie.slice(-this.inputUnitNumber)
         
         for (let step = 0; step < steps; step++) {
             const currentInput = currentInputSerie.slice(-this.inputUnitNumber)
             const { output } = this.forwardPropagation(currentInput);
             
-            predictions.push(output);
+            predictions.push(output)
             currentInputSerie.push(output)
     
         } 
@@ -138,12 +138,13 @@ export class NeuralNetwork {
 
     //fonction de calcul de l'erreur NMSE
     private calculNMSE(predictions: number[], targets: number[]): number {
+        
         let sum: number = 0
         if (predictions.length != 0) {
             for (let i = 0; i < predictions.length; i++) {
-                sum += targets[i] - predictions[i]
+                sum += (predictions[i] - targets[i]) ** 2
             }
-            return parseFloat((sum / (predictions.length * this.calculateVariance(this.timeSerie))).toPrecision(8))
+            return parseFloat((Math.sqrt(sum / (predictions.length ))).toPrecision(8))
         }
         else return 0
        
