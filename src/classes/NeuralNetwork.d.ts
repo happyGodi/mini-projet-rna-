@@ -1,0 +1,30 @@
+import type { Prototype } from '../utils/interfaces';
+export declare class NeuralNetwork {
+    private inputUnitNumber;
+    private hiddenUnitNumber;
+    private outputUnitNumber;
+    private learningRate;
+    private weightsInputHidden;
+    private weightsOutputHidden;
+    private outputs;
+    private prototype;
+    private targets;
+    private timeSerie;
+    private learningErrors;
+    constructor(inputUnitNumber: number, hiddenUnitNumber: number, outputUnitNumber: number, learningRate: number, timeSerie: number[]);
+    private generatePrototype;
+    private sigmoid;
+    private sigmoidDerivated;
+    private forwardPropagation;
+    private calculateVariance;
+    private backwardPropagation;
+    train(epochs: number): void;
+    predict(inputSerie: number[], steps: number): number[];
+    private calculNMSE;
+    getPrototype(): Prototype[];
+    getInputs(): number[][];
+    getOutput(): number[];
+    getTarget(): number[];
+    getLearningErrors(): number[];
+    getTimeSerie(): number[];
+}
