@@ -244,8 +244,8 @@
             height: 100%;
             padding: 0.5rem;
             canvas {
-                max-width: 50%;
-                height: 40%;
+                max-width: 700px;
+                max-height: 700px;
                 padding: 0.5rem;
             }
             .values {
